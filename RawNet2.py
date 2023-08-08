@@ -111,7 +111,7 @@ def train_raw_net(
 
         if model_dir is not None:
             save_model(current_model, model_dir, str(
-                current).strip("/").replace("/", "_"), raw_net=True)
+                current).strip("/").replace("/", "_"))
 
 def main(args):
     # Fix a seed for reproducibility
