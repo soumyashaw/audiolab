@@ -17,8 +17,6 @@ from torch.utils.data import ConcatDataset, DataLoader
 from torchaudio.functional import compute_deltas
 
 from dfadetect.datasets import lfcc, load_directory_split_train_test, mfcc
-from dfadetect.models.gaussian_mixture_model import (GMMEM, GMMDescent,
-                                                     flatten_dataset)
 from dfadetect.models.raw_net2 import RawNet
 from dfadetect.trainer import GDTrainer, GMMTrainer
 from dfadetect.utils import set_seed
@@ -43,6 +41,81 @@ def init_logger(log_file):
     # add the handlers to the logger
     LOGGER.addHandler(fh)
     LOGGER.addHandler(ch)
+
+def save_model(
+        model: torch.nn.Module,
+        model_dir: Union[Path, str],
+        name: str,
+        em: bool = False,
+        raw_net: bool = False
+) -> None:
+    if raw_net:
+        model_class = "raw_net"
+    else:
+        model_class = "em" if em else "gd"
+    full_model_dir = Path(f"{model_dir}/{model_class}/{name}")
+    if not full_model_dir.exists():
+        full_model_dir.mkdir(parents=True)
+
+    torch.save(model.state_dict(),
+               f"{full_model_dir}/ckpt.pth")
+
+def train_raw_net(
+        real_training_distribution: Union[Path, str],
+        fake_training_distributions: List[Union[Path, str]],
+        batch_size: int,
+        epochs: int,
+        device: str,
+        model_dir: Optional[str] = None,
+        test_size: float = 0.2,
+) -> None:
+
+    LOGGER.info("Loading data...")
+
+    real_dataset_train, real_dataset_test = load_directory_split_train_test(
+        real_training_distribution,
+        None,
+        None,
+        test_size,
+        pad=True,
+        label=1,
+    )
+
+    # Train fake models
+    for current in fake_training_distributions:
+        LOGGER.info(f"Training {current}")
+        print(f"Training {current}")
+        fake_dataset_train, _ = load_directory_split_train_test(
+            current,
+            None,
+            None,
+            test_size,
+            pad=True,
+            label=0,
+        )
+
+        current_model = RawNet(deepcopy(RAW_NET_CONFIG), device).to(device)
+        data_train = ConcatDataset([real_dataset_train, fake_dataset_train])
+        LOGGER.info(
+            f"Training rawnet model on {len(data_train)} audio files.")
+
+        current_model = GDTrainer(
+            device=device,
+            batch_size=batch_size,
+            epochs=epochs,
+            optimizer_kwargs={
+                "lr": 0.0001,
+                "weight_decay": 0.0001,
+            }
+        ).train(
+            dataset=data_train,
+            model=current_model,
+            test_len=test_size,
+        )
+
+        if model_dir is not None:
+            save_model(current_model, model_dir, str(
+                current).strip("/").replace("/", "_"), raw_net=True)
 
 def main(args):
     # Fix a seed for reproducibility
@@ -76,19 +149,15 @@ def main(args):
     if not model_dir.exists():
         model_dir.mkdir(parents=True)
 
-    print(model_dir_path)
-
-    if args.raw_net:
-        train_raw_net(
-            real_training_distribution=args.REAL,
-            fake_training_distributions=[Path(args.FAKE)],
-            amount_to_use=args.amount if not args.debug else 100,
-            device=device,
-            batch_size=args.batch_size,
-            epochs=args.epochs,
-            model_dir=model_dir if not args.debug else None,  # do not save debug models
-        )
-
+    # Train models
+    train_raw_net(
+        real_training_distribution=args.REAL,
+        fake_training_distributions=[Path(args.FAKE)],
+        device=device,
+        batch_size=args.batch_size,
+        epochs=args.epochs,
+        model_dir=model_dir if not args.debug else None,  # do not save debug models
+    )
     """else:
         train_models(
             real_training_distribution=args.REAL,
@@ -113,10 +182,6 @@ def parse_args():
         "REAL", help="Directory containing real data.", type=str)
     parser.add_argument(
         "FAKE", help="Directory containing fake data.", type=str)
-
-    default_amount = None
-    parser.add_argument(
-        "--amount", "-a", help=f"Amount of files to load from each directory (default: {default_amount} - all).", type=int, default=default_amount)
 
     default_k = 128
     parser.add_argument(

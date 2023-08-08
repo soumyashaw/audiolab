@@ -1,0 +1,5 @@
+2023-08-08 19:09:18,785 - INFO - Loading data...
+2023-08-08 19:09:18,785 - INFO - Loading data from E:\Datasets\DeepVoice\Original_audios...!
+2023-08-08 19:09:18,785 - INFO - Training E:\Datasets\DeepVoice\Fake_audios
+2023-08-08 19:09:18,785 - INFO - Loading data from E:\Datasets\DeepVoice\Fake_audios...!
+2023-08-08 19:09:19,003 - INFO - Training rawnet model on 80 audio files.

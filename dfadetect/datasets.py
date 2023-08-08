@@ -257,7 +257,6 @@ def load_directory_split_train_test(
         phone_call: bool = False,
         pad: bool = False,
         label: Optional[int] = None,
-        amount_to_use: Optional[int] = None,
 ) -> Tuple[TransformDataset, TransformDataset]:
     """Load all wav files from directory, apply the feature transformation
     and split into test/train.
@@ -273,9 +272,6 @@ def load_directory_split_train_test(
     paths = find_wav_files(path)
     if paths is None:
         raise IOError(f"Could not load files from {path}!")
-
-    if amount_to_use is not None:
-        paths = paths[:amount_to_use]
 
     test_size = int(test_size * len(paths))
 
