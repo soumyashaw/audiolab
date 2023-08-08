@@ -1,3 +1,11 @@
 2023-08-02 12:15:34,524 - INFO - Loading data...
 2023-08-02 12:15:34,528 - INFO - Loading data from E:\Datasets\DeepVoice\Original_audios...!
 2023-08-02 12:15:34,529 - INFO - Training real model on 40 audio files.
+2023-08-08 17:37:17,571 - INFO - Loading data...
+2023-08-08 17:37:17,571 - INFO - Loading data from E:\Datasets\DeepVoice\Original_audios\...!
+2023-08-08 17:37:17,571 - INFO - Training real model on 40 audio files.
+2023-08-08 17:42:38,063 - INFO - Loading data...
+2023-08-08 17:42:38,063 - INFO - Loading data from E:\Datasets\DeepVoice\Original_audios\...!
+2023-08-08 17:42:38,063 - INFO - Training E:\Datasets\DeepVoice\Fake_audios
+2023-08-08 17:42:38,073 - INFO - Loading data from E:\Datasets\DeepVoice\Fake_audios...!
+2023-08-08 17:42:38,658 - INFO - Training rawnet model on 80 audio files.
