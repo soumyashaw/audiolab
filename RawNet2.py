@@ -42,18 +42,14 @@ def init_logger(log_file):
     LOGGER.addHandler(fh)
     LOGGER.addHandler(ch)
 
-def save_model(
-        model: torch.nn.Module,
-        model_dir: Union[Path, str],
-        name: str,
-        em: bool = False,
-        raw_net: bool = False
-) -> None:
-    if raw_net:
-        model_class = "raw_net"
-    else:
-        model_class = "em" if em else "gd"
+def save_model(model: torch.nn.Module, model_dir: Union[Path, str], name: str) -> None:
+    # Save model
+
+    # Create model directory
+    model_class = "raw_net"
     full_model_dir = Path(f"{model_dir}/{model_class}/{name}")
+
+    # Create model directory if it does not exist
     if not full_model_dir.exists():
         full_model_dir.mkdir(parents=True)
 
@@ -158,21 +154,6 @@ def main(args):
         epochs=args.epochs,
         model_dir=model_dir if not args.debug else None,  # do not save debug models
     )
-    """else:
-        train_models(
-            real_training_distribution=args.REAL,
-            fake_training_distributions=fake_dirs,
-            amount_to_use=args.amount if not args.debug else 100,
-            feature_fn=feature_fn,
-            feature_kwargs=feature_kwargs(args.lfcc),
-            clusters=args.clusters,
-            device=device,
-            batch_size=args.batch_size,
-            epochs=args.epochs,
-            retraining=args.retraining,
-            use_em=args.use_em,
-            model_dir=model_dir if not args.debug else None,  # do not save debug models
-        )"""
 
 
 def parse_args():
