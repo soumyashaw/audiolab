@@ -126,19 +126,6 @@ def main(args):
     # Set feature function (mfcc or lfcc)
     feature_fn = mfcc
 
-    # Parse fake directories
-    """base_dir = Path(args.FAKE)
-    fake_dirs = []
-    for path in base_dir.iterdir():
-        if path.is_dir():
-            if "jsut" in str(path) or "conformer" in str(path):
-                continue
-
-            fake_dirs.append(path.absolute())
-
-    if len(fake_dirs) == 0:
-        fake_dirs = [base_dir]"""
-
     model_dir_path = f"{args.ckpt}"
     model_dir_path += f"/{'mfcc'}"
     model_dir = Path(model_dir_path)
